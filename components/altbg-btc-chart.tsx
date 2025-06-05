@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, Bitcoin, BarChart3, Calendar, DollarSign, Euro } from "lucide-react"
+import { TrendingUp, Bitcoin, BarChart3, Calendar, DollarSign, Euro, AlertCircle } from "lucide-react"
 import { generateRealBasedHistoricalData, fetchRealTimeData, type HistoricalDataPoint } from "@/lib/real-data-service"
 
 // Importar Plotly dinamicamente
@@ -34,6 +34,9 @@ export function AltbgBtcChart() {
         setChartData(historicalData)
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
+        // Em caso de erro, manter dados vazios e mostrar mensagem
+        setChartData([])
+        setRealTimeData({ isDemo: true, demoReason: "Erro ao carregar dados" })
       } finally {
         setLoading(false)
       }
@@ -169,8 +172,13 @@ export function AltbgBtcChart() {
           <CardTitle className="flex items-center text-gray-100">
             <Bitcoin className="h-6 w-6 mr-2 text-orange-400" />
             Relação ALTBG vs Bitcoin
-            <Badge variant="outline" className="ml-2 text-green-400 border-green-600 text-xs">
-              DADOS REAIS
+            <Badge
+              variant="outline"
+              className={`ml-2 text-xs ${
+                realTimeData?.isDemo ? "text-yellow-400 border-yellow-600" : "text-green-400 border-green-600"
+              }`}
+            >
+              {realTimeData?.isDemo ? "DADOS SIMULADOS" : "DADOS REAIS"}
             </Badge>
           </CardTitle>
           <div className="flex gap-2 flex-wrap">
@@ -201,6 +209,16 @@ export function AltbgBtcChart() {
           </div>
         </div>
       </CardHeader>
+      {realTimeData?.isDemo && realTimeData.demoReason && (
+        <div className="mx-6 mb-4 p-3 bg-yellow-900/20 border border-yellow-600/50 rounded-lg">
+          <div className="flex items-start space-x-2">
+            <AlertCircle className="h-4 w-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-yellow-200 text-sm">{realTimeData.demoReason}</p>
+            </div>
+          </div>
+        </div>
+      )}
       <CardContent className="p-6">
         {/* Estatísticas atuais */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
